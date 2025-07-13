@@ -49,11 +49,14 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            overflow-x: auto; /* Para que la tabla sea responsive */
+            display: block;
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 12px;
             text-align: left;
+            white-space: nowrap; /* Evita que el texto se parta */
         }
         th {
             background-color: #007bff;
@@ -72,16 +75,28 @@
             color: #777;
             margin-top: 30px;
         }
-        .back-link {
-            display: block;
+        
+        /* --- ESTILOS ACTUALIZADOS PARA EL BOTÓN --- */
+        .footer-nav {
             text-align: center;
-            margin-top: 20px;
-            color: #007bff;
+            margin-top: 30px;
+        }
+        .nav-button {
+            display: inline-block;
+            background-color: #6c757d; /* Color gris secundario */
+            color: white;
+            padding: 12px 28px;
+            border-radius: 6px;
             text-decoration: none;
             font-weight: bold;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        .back-link:hover {
-            text-decoration: underline;
+        .nav-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px); /* Efecto de elevación */
         }
     </style>
 </head>
@@ -98,7 +113,7 @@
                         <th>Tipo</th>
                         <th>Lugar</th>
                         <th>Detalle</th>
-                        <th>Fecha</th>
+                        <th>Fecha y Hora</th>
                     </tr>
                 </thead>
                 <tbody id="incidenciasTableBody">
@@ -107,12 +122,16 @@
             </table>
             <div id="noDataMessage" class="no-data-message" style="display: none;">No se encontraron incidencias históricas.</div>
         </div>
-        <a href="index.html" class="back-link">← Volver al formulario de registro</a>
+
+        <!-- --- ENLACE ANTERIOR REEMPLAZADO POR ESTE BOTÓN --- -->
+        <div class="footer-nav">
+            <a href="index.html" class="nav-button">Volver al Menú</a>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
     <script>
-        const { DateTime } = luxon; // Acceder a DateTime de la librería global Luxon
+        const { DateTime } = luxon;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const loadingMessage = document.getElementById('loading');
@@ -123,12 +142,10 @@
             loadingMessage.style.display = 'block';
             errorMessage.style.display = 'none';
             noDataMessage.style.display = 'none';
-            incidenciasTableBody.innerHTML = ''; // Limpiar cualquier contenido previo
+            incidenciasTableBody.innerHTML = '';
 
             try {
-                // !!! CAMBIA ESTA URL a la de tu API desplegada en Render !!!
                 const apiEndpoint = 'https://api-swa.onrender.com/api/incidencias_historicas';
-
                 const response = await fetch(apiEndpoint);
 
                 if (!response.ok) {
@@ -140,13 +157,14 @@
 
                 if (incidencias.length === 0) {
                     noDataMessage.style.display = 'block';
+                    document.querySelector('table').style.display = 'none'; // Ocultar tabla si no hay datos
                 } else {
                     incidencias.forEach(incidencia => {
                         const row = incidenciasTableBody.insertRow();
-
-                        // Parsear la fecha de la DB (que será una string ISO) y formatearla a la hora de Chile
-                        const fechaSantiago = DateTime.fromISO(incidencia.fecha, { zone: 'America/Santiago' });
-                        const formattedFecha = fechaSantiago.isValid ? fechaSantiago.toFormat('dd/MM/yyyy HH:mm:ss') : 'Fecha inválida';
+                        
+                        // Formatear la fecha a una zona horaria común (puedes ajustarla)
+                        const fechaLocal = DateTime.fromISO(incidencia.fecha).toLocal();
+                        const formattedFecha = fechaLocal.isValid ? fechaLocal.toFormat('dd/MM/yyyy HH:mm:ss') : 'Fecha inválida';
 
                         row.insertCell().textContent = incidencia.id;
                         row.insertCell().textContent = incidencia.tipo;
@@ -159,8 +177,9 @@
                 console.error('Error al cargar incidencias:', error);
                 errorMessage.textContent = `No se pudieron cargar las incidencias: ${error.message}`;
                 errorMessage.style.display = 'block';
+                document.querySelector('table').style.display = 'none'; // Ocultar tabla en caso de error
             } finally {
-                loadingMessage.style.display = 'none'; // Ocultar mensaje de carga
+                loadingMessage.style.display = 'none';
             }
         });
     </script>
