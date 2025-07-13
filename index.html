@@ -8,19 +8,16 @@
     <style>
         /* --- Estilos CSS --- */
         
-        /* Estilo base del cuerpo de la página */
         body {
             margin: 0;
             font-family: Helvetica, Arial, sans-serif;
-            /* Fondo con gradiente de grises sutil */
             background: linear-gradient(to bottom, #f0f2f5, #e9ebee);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Asegura que ocupe toda la altura de la pantalla */
+            min-height: 100vh;
         }
 
-        /* Contenedor principal para centrar el contenido */
         .link-container {
             background-color: #ffffff;
             padding: 40px;
@@ -28,42 +25,63 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             text-align: center;
             max-width: 400px;
-            width: 90%; /* Asegura que no ocupe todo el ancho en móviles */
+            width: 90%;
         }
 
-        /* Título del panel */
         .link-container h1 {
-            color: #1c1e21; /* Color de texto principal de Facebook */
+            color: #1c1e21;
             font-size: 24px;
             margin-top: 0;
             margin-bottom: 30px;
         }
 
-        /* Agrupador para los botones */
         .button-group {
             display: flex;
-            flex-direction: column; /* Apila los botones verticalmente */
-            gap: 15px; /* Espacio entre los botones */
+            flex-direction: column;
+            gap: 15px;
         }
 
-        /* Estilo de los botones (usando etiquetas <a>) */
+        /* Estilo base para todos los botones */
         .action-button {
-            display: block; /* Permite aplicar padding y ocupar todo el ancho */
-            background-color: #1877F2; /* Azul oficial de Facebook */
+            display: block;
             color: #ffffff;
             padding: 15px 20px;
             border-radius: 6px;
             font-size: 18px;
             font-weight: bold;
-            text-decoration: none; /* Quita el subrayado de los enlaces */
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        /* Efecto al pasar el cursor sobre el botón */
         .action-button:hover {
-            background-color: #166fe5; /* Un azul ligeramente más oscuro */
-            transform: translateY(-2px); /* Eleva el botón sutilmente */
+            transform: translateY(-2px);
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        /* --- Colores específicos para cada botón --- */
+
+        /* Botón Azul (Acción principal) */
+        .btn-blue {
+            background-color: #1877F2; /* Azul oficial de Facebook */
+        }
+        .btn-blue:hover {
+            background-color: #166fe5; /* Azul más oscuro */
+        }
+
+        /* Botón Verde (Acción positiva/visualización) */
+        .btn-green {
+            background-color: #42b72a; /* Verde "éxito" */
+        }
+        .btn-green:hover {
+            background-color: #36a420; /* Verde más oscuro */
+        }
+
+        /* Botón Gris (Acción neutral/secundaria) */
+        .btn-gray {
+            background-color: #606770; /* Gris oscuro y neutro */
+        }
+        .btn-gray:hover {
+            background-color: #50565e; /* Gris más oscuro */
         }
 
     </style>
@@ -76,18 +94,18 @@
         <h1>Panel de Gestión Ciudadana</h1>
         
         <div class="button-group">
-            <!-- Botón que enlaza a la página para crear un nuevo incidente -->
-            <a href="nuevo.html" class="action-button">
+            <!-- Botón 1: Azul -->
+            <a href="nuevo.html" class="action-button btn-blue">
                 Agregar Nuevo Incidente
             </a>
 
-            <!-- Botón que enlaza al listado de incidentes -->
-            <a href="listado.html" class="action-button">
+            <!-- Botón 2: Verde -->
+            <a href="listado.html" class="action-button btn-green">
                 Ver Listado de Incidentes
             </a>
 
-            <!-- Botón que enlaza al listado de reportes (denuncias) -->
-            <a href="list.html" class="action-button">
+            <!-- Botón 3: Gris -->
+            <a href="list.html" class="action-button btn-gray">
                 Listado de Reportes Ciudadanos
             </a>
         </div>

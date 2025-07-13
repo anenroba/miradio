@@ -9,13 +9,13 @@
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             display: flex;
-            flex-direction: column; /* Cambiado a columna para apilar elementos */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px; /* Añadido padding para evitar que el contenido toque los bordes */
-            box-sizing: border-box; /* Incluir padding en el tamaño total */
+            padding: 20px;
+            box-sizing: border-box;
         }
         .container {
             background-color: #fff;
@@ -24,7 +24,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 500px;
-            margin-bottom: 20px; /* Espacio entre el formulario y el nuevo botón */
+            margin-bottom: 20px;
         }
         h1 {
             text-align: center;
@@ -44,12 +44,12 @@
         input[type="datetime-local"],
         textarea,
         select {
-            width: calc(100% - 20px); /* Adjusting for padding */
+            width: 100%; /* Changed from calc() for simplicity */
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 16px;
-            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            box-sizing: border-box;
         }
         textarea {
             resize: vertical;
@@ -57,30 +57,44 @@
         }
         .button-group {
             display: flex;
-            flex-direction: column; /* Apilar botones verticalmente */
-            gap: 15px; /* Espacio entre botones */
-            margin-top: 20px; /* Espacio superior para el grupo de botones */
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
         }
-        button {
-            background-color: #007bff;
+        /* Style for all buttons in the group */
+        .button-group button {
             color: white;
             padding: 12px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 18px;
-            width: 100%; /* Botones ocupan todo el ancho disponible */
+            width: 100%;
             transition: background-color 0.3s ease;
         }
-        button:hover {
+
+        /* --- Colores específicos para cada botón --- */
+        #submitButton {
+            background-color: #007bff; /* Azul */
+        }
+        #submitButton:hover {
             background-color: #0056b3;
         }
-        #viewListButton { /* Estilo específico para el nuevo botón */
-            background-color: #28a745; /* Un color diferente para distinguirlo */
+
+        #viewListButton {
+            background-color: #28a745; /* Verde */
         }
         #viewListButton:hover {
             background-color: #218838;
         }
+
+        #backToMenuButton {
+            background-color: #6c757d; /* Gris */
+        }
+        #backToMenuButton:hover {
+            background-color: #5a6268;
+        }
+
         .message {
             margin-top: 20px;
             padding: 10px;
@@ -99,12 +113,11 @@
             border: 1px solid #f5c6cb;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
             }
-            button {
+            .button-group button {
                 font-size: 16px;
                 padding: 10px 15px;
             }
@@ -140,10 +153,12 @@
                 <label for="fecha">Fecha y Hora (Opcional, dejar vacío para ahora):</label>
                 <input type="datetime-local" id="fecha" name="fecha">
             </div>
+            
+            <!-- Grupo de botones actualizado -->
             <div class="button-group">
-                <button type="submit">Registrar Incidencia</button>
-                <!-- Nuevo botón para ver el listado -->
-                <button type="button" id="viewListButton">Ver Listado de Incidencias</button>
+                <button type="submit" id="submitButton">Registrar Incidencia</button>
+                <button type="button" id="viewListButton">Ver Listado</button>
+                <button type="button" id="backToMenuButton">Volver al Menú</button>
             </div>
         </form>
         <div id="responseMessage" class="message" style="display: none;"></div>
@@ -151,24 +166,21 @@
 
     <script>
         document.getElementById('incidenciaForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Evita que el formulario se envíe de forma tradicional
+            event.preventDefault();
 
             const responseMessage = document.getElementById('responseMessage');
-            responseMessage.style.display = 'none'; // Oculta mensajes anteriores
-            responseMessage.className = 'message'; // Resetea clases de estilo
+            responseMessage.style.display = 'none';
+            responseMessage.className = 'message';
 
             const tipo = document.getElementById('tipo').value;
             const lugar = document.getElementById('lugar').value;
             const detalle = document.getElementById('detalle').value;
             let fecha = document.getElementById('fecha').value;
 
-            // Si la fecha no se especifica, el backend usará CURRENT_TIMESTAMP
-            // Pero si se especifica, la enviaremos
             if (fecha) {
-                // Convertir al formato ISO 8601 (YYYY-MM-DDTHH:MM:SS) para el backend
                 fecha = new Date(fecha).toISOString();
             } else {
-                fecha = null; // Enviar null para que el backend use el valor por defecto
+                fecha = null;
             }
 
             const data = { tipo, lugar, detalle };
@@ -177,7 +189,6 @@
             }
 
             try {
-                // !!! CAMBIA ESTA URL a la de tu API desplegada en Render !!!
                 const apiEndpoint = 'https://api-swa.onrender.com/api/incidencias_historicas'; 
 
                 const response = await fetch(apiEndpoint, {
@@ -190,12 +201,11 @@
 
                 const result = await response.json();
 
-                if (response.ok) { // Si la respuesta HTTP es 2xx (éxito)
+                if (response.ok) {
                     responseMessage.textContent = result.message || 'Incidencia registrada con éxito.';
                     responseMessage.classList.add('success');
-                    // Opcional: Limpiar el formulario después del éxito
                     document.getElementById('incidenciaForm').reset();
-                } else { // Si la respuesta HTTP es 4xx o 5xx (error)
+                } else {
                     responseMessage.textContent = result.error || 'Error al registrar la incidencia.';
                     responseMessage.classList.add('error');
                     console.error('Error al registrar incidencia:', result.detailed_error || result.error);
@@ -205,19 +215,20 @@
                 responseMessage.classList.add('error');
                 console.error('Error de red o CORS:', error);
             } finally {
-                responseMessage.style.display = 'block'; // Mostrar el mensaje
+                responseMessage.style.display = 'block';
             }
         });
 
-        // Event listener para el nuevo botón "Ver Listado de Incidencias"
+        // Event listener para el botón "Ver Listado"
         document.getElementById('viewListButton').addEventListener('click', function() {
-            window.location.href = 'listado.html'; // Redirige a listado.html
+            window.location.href = 'listado.html';
         });
 
-        // Configura la fecha y hora actual como valor por defecto en el campo de fecha (opcional)
-        // const now = new Date();
-        // now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        // document.getElementById('fecha').value = now.toISOString().slice(0,16);
+        // --- NUEVO EVENT LISTENER PARA EL BOTÓN "VOLVER AL MENÚ" ---
+        document.getElementById('backToMenuButton').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+
     </script>
 </body>
 </html>
