@@ -45,18 +45,27 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
+        /* --- ESTILOS CORREGIDOS --- */
+        
+        /* 1. Al contenedor de la tabla se le da el overflow. */
+        #incidenciasList {
+            overflow-x: auto; /* Esto crea el scroll horizontal SÓLO si es necesario. */
+        }
+
+        /* 2. La tabla ahora tiene un estilo simple y correcto. */
         table {
-            width: 100%;
+            width: 100%; /* Ocupará todo el espacio de su contenedor. */
             border-collapse: collapse;
             margin-top: 20px;
-            overflow-x: auto; /* Para que la tabla sea responsive */
-            display: block;
+            /* Se eliminaron 'display: block' y 'overflow-x: auto' de aquí. */
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
-            white-space: nowrap; /* Evita que el texto se parta */
+            white-space: nowrap; /* Buena práctica: evita que el texto se rompa en varias líneas */
         }
         th {
             background-color: #007bff;
@@ -76,14 +85,13 @@
             margin-top: 30px;
         }
         
-        /* --- ESTILOS ACTUALIZADOS PARA EL BOTÓN --- */
         .footer-nav {
             text-align: center;
             margin-top: 30px;
         }
         .nav-button {
             display: inline-block;
-            background-color: #6c757d; /* Color gris secundario */
+            background-color: #6c757d;
             color: white;
             padding: 12px 28px;
             border-radius: 6px;
@@ -96,7 +104,7 @@
         }
         .nav-button:hover {
             background-color: #5a6268;
-            transform: translateY(-2px); /* Efecto de elevación */
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -105,6 +113,8 @@
         <h1>Listado de Incidencias</h1>
         <div id="loading" class="loading-message">Cargando incidencias...</div>
         <div id="error" class="error-message" style="display: none;"></div>
+        
+        <!-- Este DIV ahora controlará el scroll horizontal de la tabla -->
         <div id="incidenciasList">
             <table>
                 <thead>
@@ -117,13 +127,13 @@
                     </tr>
                 </thead>
                 <tbody id="incidenciasTableBody">
-                    <!-- Las filas de incidencias se insertarán aquí con JavaScript -->
+                    <!-- Las filas se insertarán aquí con JavaScript -->
                 </tbody>
             </table>
-            <div id="noDataMessage" class="no-data-message" style="display: none;">No se encontraron incidencias históricas.</div>
         </div>
+        
+        <div id="noDataMessage" class="no-data-message" style="display: none;">No se encontraron incidencias históricas.</div>
 
-        <!-- --- ENLACE ANTERIOR REEMPLAZADO POR ESTE BOTÓN --- -->
         <div class="footer-nav">
             <a href="index.html" class="nav-button">Volver al Menú</a>
         </div>
@@ -138,10 +148,12 @@
             const errorMessage = document.getElementById('error');
             const incidenciasTableBody = document.getElementById('incidenciasTableBody');
             const noDataMessage = document.getElementById('noDataMessage');
+            const tableContainer = document.getElementById('incidenciasList');
 
             loadingMessage.style.display = 'block';
             errorMessage.style.display = 'none';
             noDataMessage.style.display = 'none';
+            tableContainer.style.display = 'block'; // Asegurarse de que el contenedor es visible
             incidenciasTableBody.innerHTML = '';
 
             try {
@@ -157,12 +169,11 @@
 
                 if (incidencias.length === 0) {
                     noDataMessage.style.display = 'block';
-                    document.querySelector('table').style.display = 'none'; // Ocultar tabla si no hay datos
+                    tableContainer.style.display = 'none';
                 } else {
                     incidencias.forEach(incidencia => {
                         const row = incidenciasTableBody.insertRow();
                         
-                        // Formatear la fecha a una zona horaria común (puedes ajustarla)
                         const fechaLocal = DateTime.fromISO(incidencia.fecha).toLocal();
                         const formattedFecha = fechaLocal.isValid ? fechaLocal.toFormat('dd/MM/yyyy HH:mm:ss') : 'Fecha inválida';
 
@@ -177,7 +188,7 @@
                 console.error('Error al cargar incidencias:', error);
                 errorMessage.textContent = `No se pudieron cargar las incidencias: ${error.message}`;
                 errorMessage.style.display = 'block';
-                document.querySelector('table').style.display = 'none'; // Ocultar tabla en caso de error
+                tableContainer.style.display = 'none';
             } finally {
                 loadingMessage.style.display = 'none';
             }
