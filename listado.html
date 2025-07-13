@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Incidencias Históricas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .loading-message, .error-message {
+            text-align: center;
+            font-size: 1.1em;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .loading-message {
+            background-color: #e0f7fa;
+            color: #007bb6;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e9e9e9;
+        }
+        .no-data-message {
+            text-align: center;
+            font-size: 1.1em;
+            color: #777;
+            margin-top: 30px;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Listado de Incidencias Históricas</h1>
+        <div id="loading" class="loading-message">Cargando incidencias...</div>
+        <div id="error" class="error-message" style="display: none;"></div>
+        <div id="incidenciasList">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Lugar</th>
+                        <th>Detalle</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="incidenciasTableBody">
+                    <!-- Las filas de incidencias se insertarán aquí con JavaScript -->
+                </tbody>
+            </table>
+            <div id="noDataMessage" class="no-data-message" style="display: none;">No se encontraron incidencias históricas.</div>
+        </div>
+        <a href="incidencias_form.html" class="back-link">← Volver al formulario de registro</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script>
+        const { DateTime } = luxon; // Acceder a DateTime de la librería global Luxon
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loadingMessage = document.getElementById('loading');
+            const errorMessage = document.getElementById('error');
+            const incidenciasTableBody = document.getElementById('incidenciasTableBody');
+            const noDataMessage = document.getElementById('noDataMessage');
+
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            noDataMessage.style.display = 'none';
+            incidenciasTableBody.innerHTML = ''; // Limpiar cualquier contenido previo
+
+            try {
+                // !!! CAMBIA ESTA URL a la de tu API desplegada en Render !!!
+                const apiEndpoint = 'https://api-swa.onrender.com/api/incidencias_historicas';
+
+                const response = await fetch(apiEndpoint);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Error HTTP: ${response.status}`);
+                }
+
+                const incidencias = await response.json();
+
+                if (incidencias.length === 0) {
+                    noDataMessage.style.display = 'block';
+                } else {
+                    incidencias.forEach(incidencia => {
+                        const row = incidenciasTableBody.insertRow();
+
+                        // Parsear la fecha de la DB (que será una string ISO) y formatearla a la hora de Chile
+                        const fechaSantiago = DateTime.fromISO(incidencia.fecha, { zone: 'America/Santiago' });
+                        const formattedFecha = fechaSantiago.isValid ? fechaSantiago.toFormat('dd/MM/yyyy HH:mm:ss') : 'Fecha inválida';
+
+                        row.insertCell().textContent = incidencia.id;
+                        row.insertCell().textContent = incidencia.tipo;
+                        row.insertCell().textContent = incidencia.lugar;
+                        row.insertCell().textContent = incidencia.detalle;
+                        row.insertCell().textContent = formattedFecha;
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar incidencias:', error);
+                errorMessage.textContent = `No se pudieron cargar las incidencias: ${error.message}`;
+                errorMessage.style.display = 'block';
+            } finally {
+                loadingMessage.style.display = 'none'; // Ocultar mensaje de carga
+            }
+        });
+    </script>
+</body>
+</html>
