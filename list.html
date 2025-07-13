@@ -19,7 +19,7 @@
             max-width: 1200px;
             margin: 0 auto;
             background-color: #ffffff;
-            padding: 20px 40px;
+            padding: 20px 40px 40px 40px; /* Aumentado padding inferior para dar espacio al botón */
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
@@ -93,6 +93,31 @@
         .hidden {
             display: none;
         }
+        
+        /* --- ESTILOS PARA EL NUEVO BOTÓN --- */
+        .footer-nav {
+            text-align: center;
+            margin-top: 40px; /* Espacio entre las tablas y el botón */
+        }
+
+        .nav-button {
+            display: inline-block;
+            background-color: #6c757d; /* Color gris */
+            color: white;
+            padding: 12px 28px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -138,49 +163,40 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- --- BOTÓN "VOLVER AL MENÚ" AÑADIDO AQUÍ --- -->
+        <div class="footer-nav">
+            <a href="index.html" class="nav-button">Volver al Menú</a>
+        </div>
+        
     </div>
 
     <script>
-        // --- Todo el código JavaScript va aquí ---
+        // --- El código JavaScript no necesita cambios ---
 
-        // URL del endpoint en Render que combina incidentes y denuncias
         const API_URL = 'https://api-swa.onrender.com/api/reports';
 
-        // Obtenemos las referencias a los elementos del DOM que vamos a manipular
         const incidentsTableBody = document.querySelector('#incidentsTable tbody');
         const denunciasTableBody = document.querySelector('#denunciasTable tbody');
         const refreshButton = document.getElementById('refreshButton');
         const loadingMessage = document.getElementById('loadingMessage');
 
-        /**
-         * Formatea una fecha ISO (ej: "2024-07-15T10:30:00.000Z") a un formato legible
-         * para el usuario local (ej: "15/7/2024, 10:30:00").
-         * @param {string} isoString - La fecha en formato ISO.
-         * @returns {string} La fecha formateada o "Fecha inválida".
-         */
         function formatTimestamp(isoString) {
             if (!isoString) return 'N/A';
             const date = new Date(isoString);
-            // toLocaleString convierte la fecha al formato local del navegador del usuario
             return isNaN(date) ? 'Fecha inválida' : date.toLocaleString();
         }
 
-        /**
-         * Función principal para obtener los datos de la API y renderizarlos en las tablas.
-         */
         async function fetchAndRenderReports() {
-            // Mostrar mensaje de carga y vaciar tablas antiguas
             loadingMessage.classList.remove('hidden');
             incidentsTableBody.innerHTML = '';
             denunciasTableBody.innerHTML = '';
 
             try {
                 const response = await fetch(API_URL);
-
                 if (!response.ok) {
                     throw new Error(`Error en la petición: ${response.statusText} (Código: ${response.status})`);
                 }
-
                 const reports = await response.json();
 
                 if (reports.length === 0) {
@@ -188,12 +204,8 @@
                     incidentsTableBody.innerHTML = noDataMessage;
                     denunciasTableBody.innerHTML = noDataMessage;
                 } else {
-                     // Iteramos sobre cada reporte obtenido
                     reports.forEach(report => {
-                        // Creamos una nueva fila de tabla
                         const row = document.createElement('tr');
-
-                        // Creamos las celdas con la información del reporte
                         row.innerHTML = `
                             <td>${report.id}</td>
                             <td>${report.description || 'Sin descripción'}</td>
@@ -201,8 +213,6 @@
                             <td>${report.reported_by || 'Desconocido'}</td>
                             <td>${formatTimestamp(report.report_timestamp)}</td>
                         `;
-
-                        // Decidimos a qué tabla añadir la fila según el tipo de reporte
                         if (report.report_type === 'Incidente') {
                             incidentsTableBody.appendChild(row);
                         } else if (report.report_type === 'Denuncia') {
@@ -212,20 +222,15 @@
                 }
             } catch (error) {
                 console.error("No se pudieron cargar los datos:", error);
-                // Mostrar un error en ambas tablas
                 const errorMessage = `<tr><td colspan="5" style="color: red; text-align: center;">Error al cargar los datos: ${error.message}</td></tr>`;
                 incidentsTableBody.innerHTML = errorMessage;
                 denunciasTableBody.innerHTML = errorMessage;
             } finally {
-                // Ocultar el mensaje de carga, haya éxito o error
                 loadingMessage.classList.add('hidden');
             }
         }
 
-        // Añadimos un listener al botón para que llame a la función de carga
         refreshButton.addEventListener('click', fetchAndRenderReports);
-
-        // Y llamamos a la función una vez cuando la página se carga por primera vez
         document.addEventListener('DOMContentLoaded', fetchAndRenderReports);
     </script>
 
